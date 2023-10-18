@@ -1,0 +1,30 @@
+name: CD Pipeline
+on: push
+
+jobs:
+  deployment:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Initialize aks context
+        uses: Azure/aks-set-context@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+          cluster-name: ${{ vars.AZURE_CLUSTER_NAME }}
+          resource-group: ${{ vars.AZURE_RESOURCEGROUP_NAME }}
+
+      - name: Install helm
+        uses: azure/setup-helm@v3
+
+      - name: Deploy mosquitto
+        shell: bash
+        run: |
+          helm repo add t3n https://storage.googleapis.com/t3n-helm-charts
+          helm upgrade mosquitto t3n/mosquitto --version 2.4.1 --install --set service.type=LoadBalancer --set 'authentication.passwordEntries=${{ secrets.MOSQUITTO_PASSWORD }}' --set 'service.annotations.service\.beta\.kubernetes\.io/azure-dns-label-name=${{ vars.MOSQUITTO_DNS_LABEL }}'
+
+      - name: Deploy smartoffice
+        shell: bash
+        run: |
+          helm upgrade smartoffice . --install --set configUrl=${{ vars.SMARTOFFICE_CONFIG_URL }}
