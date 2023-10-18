@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.workspacedataentryApi.appName }}-depl
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.workspacedataentryApi.appName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.workspacedataentryApi.appName }}
+    spec:
+      containers:
+        - name: {{ .Values.workspacedataentryApi.appName }}
+          image: "{{ .Values.workspacedataentryApi.image.name }}:{{ .Values.workspacedataentryApi.image.tag }}"
+          imagePullPolicy: Always
+          env:
+            - name: SMARTOFFICE_BASEADDRESS
+              value: http://{{ .Values.workspacedataentryApi.appName }}-clusterip-srv:8080
+            - name: SMARTOFFICE_APPCONFIGURL
+              value: {{ .Values.configUrl }}
+          resources:
+            requests:
+              memory: {{ .Values.resources.requests.memory }}
+              cpu: {{ .Values.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.workspacedataentryApi.appName }}-clusterip-srv
+  namespace: {{ .Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.workspacedataentryApi.appName }}
+  ports:
+    - name: {{ .Values.workspacedataentryApi.appName }}
+      protocol: TCP
+      port: 80
+      targetPort: 8080
