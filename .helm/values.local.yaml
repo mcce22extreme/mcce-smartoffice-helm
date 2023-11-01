@@ -1,6 +1,19 @@
-namespace: default
+deployment: "local"
 
-configUrl: https://cfg-smartoffice-5ssa.azconfig.io
+namespace: smartoffice
+
+dbConfig:
+  databaseType: "InMemory"
+
+authConfig:
+  authUrl: https://<hostname>:<port>/realms/<realm>
+  clientId: smartoffice
+
+mqttConfig:
+  hostname: localhost
+  port: 1883
+  username: iot
+  password: <password>
 
 resources:
   requests:
@@ -31,11 +44,13 @@ bookingApi:
 
 userimageApi:
   appName: userimage-api
+  frontendUrl: http://localhost
   image:
     name: domih/mcce-smart-office-userimage-api
     tag: latest
   shareName: userimages-file-share
   secretName: azure-secret
+  storagePath: "<path to local storage>"
 
 workspaceApi:
   appName: workspace-api

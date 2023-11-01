@@ -20,8 +20,25 @@ spec:
           env:
             - name: SMARTOFFICE_BASEADDRESS
               value: http://{{ .Values.bookingApi.appName }}-clusterip-srv:8080
+            {{ if eq .Values.deployment "azure" }}
             - name: SMARTOFFICE_APPCONFIGURL
               value: {{ .Values.configUrl }}
+            {{ else if eq .Values.deployment "local"}}
+            - name: SMARTOFFICE_AUTHCONFIG__AUTHURL
+              value: {{ .Values.authConfig.authUrl }}
+            - name: SMARTOFFICE_AUTHCONFIG__CLIENTID
+              value: {{ .Values.authConfig.clientId }}
+            - name: SMARTOFFICE_DBCONFIG__DATABASETYPE
+              value: {{ .Values.dbConfig.databaseType }}
+            - name: SMARTOFFICE_MQTTCONFIG__HOSTNAME
+              value: {{ .Values.mqttConfig.hostname }}
+            - name: SMARTOFFICE_MQTTCONFIG__PORT
+              value: "{{ .Values.mqttConfig.port }}"
+            - name: SMARTOFFICE_MQTTCONFIG__USERNAME
+              value: {{ .Values.mqttConfig.username }}
+            - name: SMARTOFFICE_MQTTCONFIG__PASSWORD
+              value: {{ .Values.mqttConfig.password }}
+            {{ end }}              
           resources:
             requests:
               memory: {{ .Values.resources.requests.memory }}
