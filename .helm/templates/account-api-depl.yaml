@@ -20,8 +20,15 @@ spec:
           env:
             - name: SMARTOFFICE_BASEADDRESS
               value: http://{{ .Values.accountApi.appName }}-clusterip-srv:8080
+            {{ if eq .Values.deployment "azure" }}
             - name: SMARTOFFICE_APPCONFIGURL
               value: {{ .Values.configUrl }}
+            {{ else if eq .Values.deployment "local"}}
+            - name: SMARTOFFICE_AUTHCONFIG__AUTHURL
+              value: {{ .Values.authConfig.authUrl }}
+            - name: SMARTOFFICE_AUTHCONFIG__CLIENTID
+              value: {{ .Values.authConfig.clientId }}            
+            {{ end }}
           resources:
             requests:
               memory: {{ .Values.resources.requests.memory }}

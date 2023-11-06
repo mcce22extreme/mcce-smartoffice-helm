@@ -1,5 +1,7 @@
 name: CD Pipeline
-on: push
+on:
+  release:
+    types: [published]
 
 jobs:
   deployment:
@@ -27,4 +29,4 @@ jobs:
       - name: Deploy smartoffice
         shell: bash
         run: |
-          helm upgrade smartoffice . --install --set configUrl=${{ vars.SMARTOFFICE_CONFIG_URL }}
+          helm upgrade smartoffice .helm/ --install --values .helm/values.azure.yaml --set configUrl=${{ vars.SMARTOFFICE_CONFIG_URL }}
